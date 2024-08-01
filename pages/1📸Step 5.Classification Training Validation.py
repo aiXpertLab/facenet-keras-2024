@@ -1,7 +1,7 @@
 import streamlit as st, os
 
 from streamlit_extras.stateful_button import button
-from utils import streamlit_components, svc_model, image_processing, face_processing 
+from utils import delivering_classification, streamlit_components, image_processing, face_processing 
 
 streamlit_components.streamlit_ui('🦣 Face Classification')
 
@@ -15,5 +15,5 @@ model      = os.getenv('FACENET_MODEL')
 
 
 if button("Continue ?", key="button4"): 
-    svc_model.svc(dataset_training, embeddings_training)
+    delivering_classification.svc(dataset_training, embeddings_training)
         
