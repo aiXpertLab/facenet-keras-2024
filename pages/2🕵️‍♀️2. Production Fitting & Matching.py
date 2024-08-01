@@ -15,5 +15,5 @@ model      = os.getenv('FACENET_MODEL')
 
 
 if button("Production", key="button22"): 
-    svc_model.svc_prod(dataset_training, embeddings_training, dataset_prod, embeddings_prod)
+    svc_model.svc_matching(dataset_training, embeddings_training, dataset_prod, embeddings_prod)
         

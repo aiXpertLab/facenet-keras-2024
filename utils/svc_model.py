@@ -70,47 +70,60 @@ def svc(DATASIZE_NAME, EMBEDDINGS_NAME):
         show_svc(model, testX, testX_faces, out_encoder)
 
 
-def svc_prod(dataset_training, embeddings_training, dataset_prod, embeddings_prod):
+def svc_fitting(embeddings_training):
 
-        data = numpy.load(dataset_prod)
-        testX_faces = data['arr_2']
-        
         # Load face embeddings
         data_train = numpy.load(embeddings_training)
-        data_prod  = numpy.load(embeddings_prod)
-        trainX,trainy = data_train['arr_0'], data['arr_1']
-        testX,  testy = data_prod['arr_0'], data['arr_1']
-
+        trainX,trainy = data_train['arr_0'], data_train['arr_1']
+        
         # Normalize input vectors
         in_encoder = preprocessing.Normalizer(norm='l2')
         trainX= in_encoder.transform(trainX)
-        testX = in_encoder.transform(testX)
 
         # Label encode targets
         out_encoder = preprocessing.LabelEncoder()
         out_encoder.fit(trainy)
         trainy= out_encoder.transform(trainy)
-        testy = out_encoder.transform(testy)
+        # st.write(data_train['arr_0'].shape)  #  (164, 128)
+        # st.write(data_train['arr_1'].shape)  # This should be (164,)
 
         # Fit model
-        model = SVC(kernel='linear', probability=True)
-        model.fit(trainX, trainy)
+        SVC_model = SVC(kernel='linear', probability=True)
+        SVC_model.fit(trainX, trainy)
 
-        show_svc(model, testX, testX_faces, out_encoder)
+        st.write(f"Number of Support Vectors: {SVC_model.n_support_.sum()}")
+        st.write(f"Support Vectors per Class: {SVC_model.n_support_}")
+        # st.write(f"Model Coefficients: {SVC_model.coef_}")
+        st.write(f"Model Intercept: {SVC_model.intercept_}")
+    
+        return SVC_model, out_encoder
 
 
-def show_svc_prod(model, testX, testX_faces, out_encoder):
+def svc_matching(dataset_training, embeddings_training, dataset_prod, embeddings_prod):   #fitted_model, testX, testX_faces, out_encoder)
     # Pick another random image
-    selection = random.choice([i for i in range(testX.shape[0])])
+    fitted_model, out_encoder = svc_fitting(embeddings_training)
+
+    data = numpy.load(dataset_prod)
+    testX_faces = data['arr_0']
+    
+    # Load face embeddings
+    data_train = numpy.load(embeddings_training)
+    data_prod  = numpy.load(embeddings_prod)
+    trainX,trainy = data_train['arr_0'], data_train['arr_1']
+    testX,  testy = data_prod['arr_0'], data_prod['arr_1']
+    
+    # st.write(data_train['arr_0'].shape)  # This should be (164, n_features)
+    # st.write(data_train['arr_1'].shape)  # This should be (164,)
+
+    
+    selection = random.choice([i for i in range(testX.shape[0])])   # 100th picture
     random_face_pixels = testX_faces[selection]
     random_face_emb = testX[selection]
-    # random_face_class = testy[selection]
-    # random_face_name = out_encoder.inverse_transform([random_face_class])
 
     # Prediction for the face
     samples = numpy.expand_dims(random_face_emb, axis=0)
-    yhat_class = model.predict(samples)
-    yhat_prob = model.predict_proba(samples)
+    yhat_class = fitted_model.predict(samples)
+    yhat_prob  = fitted_model.predict_proba(samples)
 
     # Get prediction details
     class_index = yhat_class[0]
@@ -129,3 +142,40 @@ def show_svc_prod(model, testX, testX_faces, out_encoder):
     ax.set_xticks([])  # Remove x-axis ticks
     ax.set_yticks([])  # Remove y-axis ticks
     st.pyplot(fig)
+   
+    
+def save_in_case_svc_fitting(dataset_training, embeddings_training, dataset_prod, embeddings_prod):
+
+        data = numpy.load(dataset_prod)
+        testX_faces = data['arr_0']
+        
+        # Load face embeddings
+        data_train = numpy.load(embeddings_training)
+        data_prod  = numpy.load(embeddings_prod)
+        trainX,trainy = data_train['arr_0'], data_train['arr_1']
+        testX,  testy = data_prod['arr_0'], data_prod['arr_1']
+        
+        # st.write(data_train['arr_0'].shape)  # This should be (164, n_features)
+        # st.write(data_train['arr_1'].shape)  # This should be (164,)
+
+        # Normalize input vectors
+        in_encoder = preprocessing.Normalizer(norm='l2')
+        trainX= in_encoder.transform(trainX)
+        testX = in_encoder.transform(testX)
+
+        # Label encode targets
+        out_encoder = preprocessing.LabelEncoder()
+        out_encoder.fit(trainy)
+        trainy= out_encoder.transform(trainy)
+        testy = out_encoder.transform(testy)
+        st.write(data_train['arr_0'].shape)  #  (164, 128)
+        st.write(data_train['arr_1'].shape)  # This should be (164,)
+        st.write(data_prod['arr_0'].shape)  # This should be (164, 128)
+        st.write(data_prod['arr_1'].shape)  # This should be (164,)
+
+        # Fit model
+        model = SVC(kernel='linear', probability=True)
+        model.fit(trainX, trainy)
+
+        svc_matching(model, testX, testX_faces, out_encoder)
+
