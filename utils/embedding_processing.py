@@ -44,3 +44,22 @@ def save_embeddings(model, embedding_name, datasize_name):
         numpy.savez_compressed(embedding_name, newTrainX,
                                trainy, newTestX, testy)
     st.success(f"saved to:  {embedding_name}")
+
+def save_embeddings_prod(model_name, embedding_name, dataset_name):
+    # one set dataset
+    with st.spinner('embedding...'):
+        data = numpy.load(dataset_name)
+        trainX, trainy = data['arr_0'], data['arr_1']
+        st.write('Loaded: ', trainX.shape, trainy.shape)
+        model = tf.keras.models.load_model(model_name)
+        # convert each face in the train set to an embedding
+        newTrainX = list()
+        for face_pixels in trainX:
+            embedding = get_embedding(model, face_pixels)
+            newTrainX.append(embedding)
+        newTrainX = numpy.asarray(newTrainX)
+        print(newTrainX.shape)
+        # convert each face in the test set to an embedding
+        # save arrays to one file in compressed format
+        numpy.savez_compressed(embedding_name, newTrainX, trainy)
+    st.success(f"saved to:  {embedding_name}")

@@ -14,8 +14,8 @@ from utils.dataset_processing import load_dataset_with_metadata
 def show_svc(model, testX, testX_faces, out_encoder):
     # Pick another random image
     selection = random.choice([i for i in range(testX.shape[0])])
-    random_face_pixels = testX_faces[2]
-    random_face_emb = testX[2]
+    random_face_pixels = testX_faces[selection]
+    random_face_emb = testX[selection]
     # random_face_class = testy[selection]
     # random_face_name = out_encoder.inverse_transform([random_face_class])
 

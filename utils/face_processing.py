@@ -106,3 +106,22 @@ def show_extracted_faces(folder: str) -> None:
 # face_processor.draw_image_with_boxes('path/to/image.jpg', results)
 # face_processor.show_img(images, image_names)
 # face_processor.show_extracted_faces('path/to/folder/')
+
+def load_faces_prod(directory):
+    # Train, test, prod
+    X, y = list(), list()
+    for subdir in os.listdir(directory):
+        path = os.path.join(directory, subdir)
+        if not os.path.isdir(path):
+            continue
+
+        faces = load_faces_from_one_directory(path)
+        # create labels
+        labels = [subdir for _ in range(len(faces))]
+        st.write(labels)
+        st.write(f"> Loaded {len(faces)} examples for class: {subdir}")
+        # store
+        X.extend(faces)
+        y.extend(labels)
+    return numpy.asarray(X), numpy.asarray(y)
+

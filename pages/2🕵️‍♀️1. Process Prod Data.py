@@ -15,6 +15,6 @@ model      = os.getenv('FACENET_MODEL')
 st.text(dataset)
 
 if button("Save Production Dataset and Embeddings?", key="but5"):
-    dataset_processing.save_dataset(dataset, os.getenv('TRAIN'), os.getenv('VAL'))
-    embedding_processing.save_embeddings(model, embeddings, dataset)
+    dataset_processing.save_dataset_prod(dataset=dataset, face_folder = os.getenv('PROD'))
+    embedding_processing.save_embeddings_prod(model_name=model, embedding_name=embeddings, dataset_name=dataset)
     
