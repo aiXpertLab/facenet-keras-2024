@@ -13,7 +13,7 @@ embeddings_prod     = os.getenv('PROD_EMBEDDINGS_ywsd')
 embeddings_training = os.getenv('TRAINING_EMBEDDINGS_ywsd')
 
 model = os.getenv('FACENET_MODEL')
-PROD  = os.getenv('PROD')
+PENDING  = os.getenv('PENDING')
 
 if button("Production Classification", key="button23"): 
     predictions = delivering_classification.classify_all_images(embeddings_training, dataset_prod, embeddings_prod)
@@ -44,7 +44,7 @@ if button("Production Classification", key="button23"):
         # st.write(file_name[i])
         # st.write(PROD)
         
-        image_file = PROD + file_name[i]
+        image_file = PENDING + file_name[i]
         
         # image_files = os.path.join(PROD, file_name)
         

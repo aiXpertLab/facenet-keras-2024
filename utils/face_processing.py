@@ -1,4 +1,5 @@
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import PIL
 import numpy
 import streamlit as st
@@ -7,15 +8,18 @@ import matplotlib.patches as patches
 
 from mtcnn.mtcnn import MTCNN
 
+detector = MTCNN()
+
+
 def load_image(filename):
     image = PIL.Image.open(filename)
-    image = image.convert('RGB')
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
     pixels = numpy.asarray(image)
     return pixels
 
 
 def detect_image(pixels, required_size=(160, 160)):
-    detector = MTCNN()
     results = detector.detect_faces(pixels)
     # extract the bounding box from the first face
     if len(results) == 0:
@@ -58,32 +62,31 @@ def extract_face(filename, required_size=(160, 160)):
     face_array = detect_image(pixels)
     return face_array
 
+def is_image_file(filename):
+    return filename.lower().endswith(('png', 'jpg', 'jpeg', 'webp'))
 
 def show_extracted_faces(folder: str) -> None:
-    """
-    Extracts and displays faces from images in a given folder.
-
-    Parameters:
-    - folder: str: Path to the folder containing images.
-    """
     with st.spinner('Extracting...'):
         i = 1
         cols = st.columns(7)
         
         for filename in os.listdir(folder):
             path = os.path.join(folder, filename)
-            try:
-                face = extract_face(path)
-                with cols[(i - 1) % 7]:
-                    fig, ax = plt.subplots()
-                    ax.axis('off')
-                    ax.imshow(face)
-                    st.pyplot(fig)
-                i += 1
-                if i % 7 == 1:
-                    cols = st.columns(7)
-            except Exception as e:
-                st.error(f"Error processing {filename}: {e}")
+            
+            if os.path.isfile(path) and is_image_file(filename):
+            
+                try:
+                    face = extract_face(path)
+                    with cols[(i - 1) % 7]:
+                        fig, ax = plt.subplots()
+                        ax.axis('off')
+                        ax.imshow(face)
+                        st.pyplot(fig)
+                    i += 1
+                    if i % 7 == 1:
+                        cols = st.columns(7)
+                except Exception as e:
+                    st.error(f"Error processing {filename}: {e}")
                 
     st.success('Done')
 
@@ -111,6 +114,7 @@ def load_faces_prod(directory):
         y.extend(labels)
     return numpy.asarray(X), numpy.asarray(y)
 
+
 def load_faces_with_path(directory):
     # Train, test, prod
     X, y, file_names = list(), list(), list()
@@ -130,16 +134,19 @@ def load_faces_with_path(directory):
         # file_names.extend(file_names)
     return numpy.asarray(X), numpy.asarray(y), file_names
 
+
 def load_faces_from_one_directory(directory):
     faces = list()
     file_names = list()
     # enumerate files
     for filename in os.listdir(directory):
         # path = directory + filename
-        path = os.path.join(directory, filename)
-        face = extract_face(path)
-        if face is not None:
-            faces.append(face)      # detected faces
-            file_names.append(filename)
+        if is_image_file(filename):
+            path = os.path.join(directory, filename)
+            face = extract_face(path)
+            if face is not None:
+                faces.append(face)      # detected faces
+                file_names.append(filename)
+            st.info(f'faces: {path} {len(file_names)}')
     return faces, file_names
 

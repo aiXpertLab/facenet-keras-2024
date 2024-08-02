@@ -27,7 +27,9 @@ def svc_fitting(embeddings_training):
         # st.write(data_train['arr_1'].shape)  # This should be (164,)
 
         # Fit model
-        SVC_model = SVC(kernel='linear', probability=True)
+        st.write('c=0.1')
+        SVC_model = SVC(kernel='linear', probability=True, C=10.0)
+        
         SVC_model.fit(trainX, trainy)
 
         st.write(f"Number of Support Vectors: {SVC_model.n_support_.sum()}")
