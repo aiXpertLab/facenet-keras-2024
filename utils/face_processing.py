@@ -33,20 +33,6 @@ def detect_image(pixels, required_size=(160, 160)):
     return face_array
 
 
-def load_faces_from_one_directory(directory):
-    faces = list()
-    # file_names = list()
-    # enumerate files
-    for filename in os.listdir(directory):
-        # path = directory + filename
-        path = os.path.join(directory, filename)
-        face = extract_face(path)
-        if face is not None:
-            faces.append(face)      # detected faces
-            # file_names.append(filename)
-    return faces
-
-
 def load_faces_from_train_val_prod(directory):
     # Train, test, prod
     X, y = list(), list()
@@ -124,4 +110,36 @@ def load_faces_prod(directory):
         X.extend(faces)
         y.extend(labels)
     return numpy.asarray(X), numpy.asarray(y)
+
+def load_faces_with_path(directory):
+    # Train, test, prod
+    X, y, file_names = list(), list(), list()
+    for subdir in os.listdir(directory):
+        path = os.path.join(directory, subdir)
+        if not os.path.isdir(path):
+            continue
+
+        faces, file_names = load_faces_from_one_directory(path)
+        # create labels
+        labels = [subdir for _ in range(len(faces))]
+        st.write(labels)
+        st.write(f"> Loaded {len(faces)} examples for class: {subdir}")
+        # store
+        X.extend(faces)
+        y.extend(labels)
+        # file_names.extend(file_names)
+    return numpy.asarray(X), numpy.asarray(y), file_names
+
+def load_faces_from_one_directory(directory):
+    faces = list()
+    file_names = list()
+    # enumerate files
+    for filename in os.listdir(directory):
+        # path = directory + filename
+        path = os.path.join(directory, filename)
+        face = extract_face(path)
+        if face is not None:
+            faces.append(face)      # detected faces
+            file_names.append(filename)
+    return faces, file_names
 
