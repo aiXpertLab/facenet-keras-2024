@@ -46,7 +46,8 @@ def load_faces_from_train_val_prod(directory):
         if not os.path.isdir(path):
             continue
 
-        faces = load_faces_from_one_directory(path)
+        # faces = load_faces_from_one_directory(path)
+        faces, file_names = load_faces_from_one_directory(path)
         # create labels
         labels = [subdir for _ in range(len(faces))]
         st.write(labels)
@@ -57,8 +58,13 @@ def load_faces_from_train_val_prod(directory):
     return numpy.asarray(X), numpy.asarray(y)
 
 
-def extract_face(filename, required_size=(160, 160)):
+def extract_face(filename, downsize_ratio=0.7):
     pixels = load_image(filename)
+    if pixels.shape[1] >= 1000 and pixels.shape[0] >= 1000:
+        # Downsize the image before face detection
+        new_size = (int(pixels.shape[1] * downsize_ratio), int(pixels.shape[0] * downsize_ratio))
+        pixels = numpy.array(PIL.Image.fromarray(pixels).resize(new_size))
+    
     face_array = detect_image(pixels)
     return face_array
 

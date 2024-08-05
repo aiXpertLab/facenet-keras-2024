@@ -13,13 +13,6 @@ def save_dataset(datasize_name, train, val):
     with st.spinner('saving ...'):
         trainX, trainy = load_faces_from_train_val_prod(train)
         testX,  testy  = load_faces_from_train_val_prod(val)
-        # metadata = {
-        #     'train_dir': train,
-        #     'val_dir': val,
-        #     'num_train_samples': len(trainX),
-        #     'num_val_samples': len(testX)
-        # }
-        # save arrays to one file in compressed format
         numpy.savez_compressed(datasize_name, trainX, trainy, testX, testy)
     return datasize_name
 
@@ -40,13 +33,6 @@ def save_dataset_prod(dataset, face_folder):
     with st.spinner('saving ...'):
         trainX, trainy, file_names = load_faces_with_path(face_folder)
         st.write(file_names)
-        # metadata = {
-        #     'train_dir': train,
-        #     'val_dir': val,
-        #     'num_train_samples': len(trainX),
-        #     'num_val_samples': len(testX)
-        # }
-        # save arrays to one file in compressed format
         numpy.savez_compressed(dataset, trainX, trainy, file_names)
     return dataset
 
