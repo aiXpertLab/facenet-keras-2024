@@ -83,8 +83,6 @@ def svc_matching(embeddings_training, dataset_prod, embeddings_prod):   #fitted_
     ax.set_xticks([])  # Remove x-axis ticks
     ax.set_yticks([])  # Remove y-axis ticks
     st.pyplot(fig)
-   
-    
 
 
 # def classify_all_images(model, encoder, testX, testX_faces):
